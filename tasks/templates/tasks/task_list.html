@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task List</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fb;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            color: #444;
+        }
+
+        .container {
+            background-color: white;
+            padding: 40px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            width: 100%;
+            max-width: 900px;
+            min-width: 600px;
+            margin-top: 20px;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 1.2em;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .filter-section select, .filter-section input[type="text"] {
+            padding: 8px 16px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .task-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .task-item {
+            background-color: #ffffff;
+            margin: 15px 0;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .task-item:hover {
+            background-color: #f9f9f9;
+        }
+
+        .task-info {
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        .task-info strong {
+            color: #1d72b8;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .task-actions a {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 1em;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+
+        .task-actions a:hover {
+            background-color: #218838;
+        }
+
+        .task-actions form {
+            display: inline;
+        }
+
+        .task-actions button {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .task-actions button:hover {
+            background-color: #c82333;
+        }
+
+        .create-task-link {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .create-task-link a {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 1.2em;
+            text-decoration: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+        }
+
+        .create-task-link a:hover {
+            background-color: #0056b3;
+        }
+
+        /* Log Out Button */
+        .logout-button {
+            background-color: #dc3545;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 1.2em;
+            text-decoration: none;
+            margin-bottom: 20px;
+            display: block;
+            text-align: center;
+            width: 200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .logout-button:hover {
+            background-color: #c82333;
+        }
+
+        /* Ensure the logout button stays on top */
+        .logout-button-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="logout-button-container">
+        <a href="{% url 'logout' %}" class="logout-button">Log Out</a>
+    </div>
+
+    <div class="container">
+        <h1>Your Tasks</h1>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <input type="text" id="search-title" placeholder="Search by title..." oninput="filterTasks()">
+            <select id="filter-status" onchange="filterTasks()">
+                <option value="">Filter by Status</option>
+                <option value="pending">pending</option>
+                <option value="Completed">Completed</option>
+            </select>
+        </div>
+
+        <div class="create-task-link">
+            <a href="{% url 'task_create' %}">Create New Task</a>
+        </div>
+
+        <ul class="task-list" id="task-list">
+            {% for task in tasks %}
+            <li class="task-item" data-status="{{ task.status }}">
+                <div class="task-info">
+                    <strong>{{ task.title }}</strong> - {{ task.status }} - Due: {{ task.due_date }}
+                </div>
+                <div class="task-actions">
+                    <a href="{% url 'task_edit' task.pk %}">Edit</a>
+                    <form method="post" action="{% url 'task_delete' task.pk %}">
+                        {% csrf_token %}
+                        <button type="submit">Delete</button>
+                    </form>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <script>
+        function filterTasks() {
+            let searchTerm = document.getElementById('search-title').value.toLowerCase();
+            let statusFilter = document.getElementById('filter-status').value;
+
+            let taskItems = document.querySelectorAll('.task-item');
+            
+            taskItems.forEach(item => {
+                let title = item.querySelector('.task-info strong').textContent.toLowerCase();
+                let status = item.getAttribute('data-status');
+
+                let matchTitle = title.includes(searchTerm);
+                let matchStatus = statusFilter ? status === statusFilter : true;
+
+                if (matchTitle && matchStatus) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

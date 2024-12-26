@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if task %}Edit Task{% else %}Create Task{% endif %}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: white;
+            padding: 40px;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 700px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #444;
+        }
+
+        input[type="text"], textarea, select, input[type="date"] {
+            padding: 12px 16px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100%;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus, textarea:focus, select:focus, input[type="date"]:focus {
+            border-color: #007bff;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 160px;
+        }
+
+        button {
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .form-footer a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+                margin: 15px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            button {
+                padding: 10px 18px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{% if task %}Edit Task{% else %}Create Task{% endif %}</h1>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="title">Title:</label>
+                <input type="text" name="title" value="{{ task.title|default_if_none:'' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea name="description" required>{{ task.description|default_if_none:'' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="due_date">Due Date:</label>
+                <input type="date" name="due_date" value="{{ task.due_date|default_if_none:'' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="status">Status:</label>
+                <select name="status" required>
+                    <option value="Pending" {% if task and task.status == 'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="Completed" {% if task and task.status == 'Completed' %}selected{% endif %}>Completed</option>
+                </select>
+            </div>
+
+            <button type="submit">Save</button>
+        </form>
+        <div class="form-footer">
+            <p><a href="{% url 'task_list' %}">Back to Task List</a></p>
+        </div>
+    </div>
+</body>
+</html>
